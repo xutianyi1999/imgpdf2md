@@ -55,6 +55,9 @@ uv run --group textar python style_demo.py input.png --textar
 ```bash
 uv run python dense_fixtures.py
 uv run --group textar python evaluate_dense.py
+uv run --group textar python evaluate_style_matrix.py
+uv run --group textar python evaluate_policy.py
+uv run python build_policy_review.py
 uv run --group textar python evaluate_noise.py
 uv run python evaluate_api_dense.py
 uv run pytest -q
@@ -72,7 +75,27 @@ uv run pytest -q
 用户协议正文使用衬线字体，其他用例使用无衬线字体；内容同时覆盖中文、数字、
 英文邮箱、局部粗体、彩色字和下划线链接。
 
+`testdata/style_matrix/` 另外包含 12 组参数化页面，交叉覆盖：
+
+- Noto Sans/Noto Serif CJK；
+- 12、13、14、15、16、20 px；
+- 600、700、900 目标粗体，以及 500 字重负例；
+- 白色、暖色、灰色和深色背景；
+- 单字、短语、长片段、表格、中文/英文/数字和组合样式边界。
+
 噪声版本覆盖 0.85/0.67 倍缩放、中度/强度 JPEG、模糊噪点和低对比度色偏。
+
+`testdata/policy/` 新增 8 类协议布局：360 px 窄屏政策、整段加粗协议、纯普通
+正文负例、单字强调、换行 SDK 表格、12 px 灰底说明、深色组合样式和衬线协议。
+每类包含原图、JPEG Q55、0.85 倍缩放，共 24 个测试输入。
+`evaluate_policy.py` 还回归已有 6 个密集文档和 12 个字体矩阵页面，总计 42 次
+样式测试；前后版本共享模型预测，单独比较连续片段置信度修复的影响。
+
+运行上述评测及对照页生成命令后，打开 `testdata/policy/review.html` 查看目录。
+每页提供原图、样式预览、可切换的粗体错误框，以及 `styled.md` 链接；实际文件在
+`testdata/policy/results/<用例>/<clean|jpeg_q55|resize_085>/`。
+这些结果使用 DOM 真值字符框，不调用 API，不代表真实 OCR 的端到端准确率，
+也不评估表格结构还原。生成的详细输出已忽略，可通过命令重建。
 
 ## 范围边界
 

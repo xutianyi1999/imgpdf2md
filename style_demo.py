@@ -467,6 +467,8 @@ def classify_units(
     line_boxes: list[list[int]],
     fontdna: FontDNA | None,
     textar: Any | None = None,
+    *,
+    preserve_span_confidence: bool = True,
 ) -> None:
     segments_by_line = [underline_segments(image, box) for box in line_boxes]
     line_strokes: dict[int, list[float]] = {}
@@ -582,11 +584,22 @@ def classify_units(
         baseline = morphology_baselines.get(unit.line_index)
         if unit.morphology_bold_score is not None and baseline is not None:
             delta = unit.morphology_bold_score - baseline
+            fontdna_probability = float((unit.fontdna or {}).get("bold", -1.0))
+            textar_probability = float((unit.textar or {}).get("bold", -1.0))
+            joint_support = fontdna_probability >= 0.35 or textar_probability >= 0.25
             if unit.morphology_bold_score >= 0.30 and delta >= 0.24:
+                morphology_bold = True
+            elif (
+                unit.morphology_bold_score >= 0.60
+                and delta >= 0.14
+                and joint_support
+            ):
                 morphology_bold = True
             elif delta <= 0.08:
                 morphology_bold = False
             morphology_conf = min(0.95, max(0.0, (delta - 0.12) / 0.18))
+            if morphology_bold is True:
+                morphology_conf = max(morphology_conf, 0.55)
 
         textar_bold = None
         textar_conf = 0.0
@@ -601,6 +614,11 @@ def classify_units(
             ):
                 textar_bold = True
             textar_conf = min(1.0, max(0.0, (probability - 0.40) / 0.35))
+            if preserve_span_confidence and unit_index in textar_bold_indices:
+                # The span has already passed contextual acceptance. Using
+                # only the individual score here silently undoes gap filling
+                # when style_key applies its rendering confidence threshold.
+                textar_conf = max(textar_conf, 0.25)
 
         # Union of independent high-precision signals. TexTAR supplies page
         # context, FontDNA covers word crops, and relative morphology recovers

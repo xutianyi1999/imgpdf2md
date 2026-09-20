@@ -9,12 +9,15 @@ import pytest
 from dense_fixtures import generate_dense
 from style_demo import (
     Unit,
+    classify_units,
     enrich_vl_markdown,
     estimate_color,
     stroke_width,
     textar_span_candidates,
+    make_spans,
 )
 from textar_backend import TexTARBackend
+from style_matrix_fixtures import CASES as STYLE_MATRIX_CASES
 
 
 @pytest.fixture(scope="module")
@@ -103,3 +106,38 @@ def test_textar_span_does_not_cross_punctuation_or_line_boundaries():
         Unit("新", [0, 22, 10, 40], 1, textar={"bold": 0.60}),
     ]
     assert textar_span_candidates(units) == set()
+
+
+def test_style_matrix_covers_font_size_weight_and_theme_axes():
+    assert len(STYLE_MATRIX_CASES) >= 12
+    assert {case[1] for case in STYLE_MATRIX_CASES} == {
+        "Noto Sans CJK SC",
+        "Noto Serif CJK SC",
+    }
+    assert {case[2] for case in STYLE_MATRIX_CASES} >= {12, 13, 14, 16, 20}
+    assert {case[3] for case in STYLE_MATRIX_CASES} >= {600, 700, 900}
+    assert {case[4] for case in STYLE_MATRIX_CASES} >= {"light", "warm", "gray", "dark"}
+
+
+def test_accepted_contextual_bold_survives_markdown_rendering():
+    class Predictions:
+        def predict(self, image, units):
+            return [{"bold": p} for p in (.35, .8, .35)]
+
+    image = np.full((30, 45, 3), 255, np.uint8)
+    units = [Unit(c, [i * 12, 0, i * 12 + 11, 18], 0) for i, c in enumerate("授权书")]
+    classify_units(image, units, [[0, 0, 35, 18]], None, Predictions())
+    assert make_spans(units)[1] == "**授权书**"
+    classify_units(image, units, [[0, 0, 35, 18]], None, Predictions(), preserve_span_confidence=False)
+    assert make_spans(units)[1] == "授**权**书"
+
+
+def test_policy_fixture_has_true_negative_and_wrapped_table(tmp_path):
+    from policy_fixtures import generate_policy
+
+    manifest = json.loads(generate_policy(tmp_path).read_text())
+    plain = next(c for c in manifest['cases'] if c['name'] == 'privacy_plain_negative')
+    assert len(plain['units']) > 700
+    assert not any(u['bold'] or u['underline'] or u['colored'] for u in plain['units'])
+    table = next(c for c in manifest['cases'] if c['name'] == 'sdk_table_wrapped')
+    assert sum(u['tag'] == 'td' for u in table['units']) > 100
