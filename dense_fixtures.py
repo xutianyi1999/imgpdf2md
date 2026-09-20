@@ -65,6 +65,58 @@ def dense_user_agreement() -> str:
     </section>"""
 
 
+def compact_consent() -> str:
+    blocks = []
+    titles = ["必要权限", "设备信息", "个性化推荐", "撤回授权", "未成年人保护"]
+    for index in range(1, 12):
+        body = marked_paragraph(index + 2, POLICY_PARAGRAPHS[(index + 1) % len(POLICY_PARAGRAPHS)])
+        suffix = " 联系邮箱：privacy@example.cn。" if index % 4 == 0 else ""
+        blocks.append(f"<h2>{index}、{titles[index % len(titles)]}</h2><p>{body}{suffix}</p>")
+    return f"""<section class='page compact' data-case='compact_mobile_consent'>
+      <div class='appbar'><b>个人信息授权确认</b><span>关闭</span></div>
+      <h1>授权与隐私保护说明</h1>
+      <p class='lead'>请在勾选前阅读全部内容。<strong>拒绝非必要权限不影响基础功能</strong>，
+      点击<a href='#'>《第三方共享清单》</a>可查看接收方名称及处理目的。</p>
+      {''.join(blocks)}
+      <p class='fine-print'>版本号 v3.7.12　客服电话 400-800-1234　更新时间 2026-09-20</p>
+    </section>"""
+
+
+def dark_policy() -> str:
+    blocks = []
+    for index in range(1, 11):
+        text = marked_paragraph(index + 1, POLICY_PARAGRAPHS[index % len(POLICY_PARAGRAPHS)])
+        blocks.append(f"<h2>{index}. {['权限调用','信息保存','安全保护','您的权利'][index%4]}</h2><p>{text}</p>")
+    return f"""<section class='page dark' data-case='dark_mode_privacy_policy'>
+      <header><b>深色模式隐私政策</b><span>2026-09-20 更新</span></header>
+      <h1>隐私与数据使用说明</h1>
+      <p class='lead'>重要内容以<strong class='amber'>粗体或彩色文字</strong>提示；
+      详情可阅读<a href='#'>个人信息保护规则</a>。</p>
+      {''.join(blocks)}
+    </section>"""
+
+
+def inline_style_stress() -> str:
+    rows = []
+    for index in range(1, 13):
+        rows.append(
+            f"""<div class='stress-row'><h2>{index}. 授权确认与撤回</h2>
+            <p>普通说明文字<strong>重要授权范围</strong>继续普通说明，您可以随时
+            <strong>撤回授权</strong>，撤回前的处理行为仍然有效。</p>
+            <p><strong>粗体甲</strong>普通乙<strong>粗体丙</strong>；
+            <span class='medium'>中等字重不应识别为粗体</span>；单字选择：<strong>是</strong>或<strong>否</strong>。</p>
+            <p>组合样式：<a href='#'><strong>查看个人信息共享清单</strong></a>，
+            普通链接为<a href='#'>服务规则</a>，编号 A-{index:02d}。</p></div>"""
+        )
+    return f"""<section class='page stress' data-case='inline_bold_boundary_stress'>
+      <div class='kicker'>隐私授权书附录：行内显示样式校验</div>
+      <h1>重点条款及样式边界</h1>
+      <p class='lead'>本页模拟普通文字、连续粗体、单字粗体、相邻粗体片段、
+      中等字重以及<strong class='red'><u>彩色粗体下划线组合</u></strong>。</p>
+      {''.join(rows)}
+    </section>"""
+
+
 def dense_table() -> str:
     rows = []
     for index in range(1, 31):
@@ -88,8 +140,19 @@ def html() -> str:
     *{{box-sizing:border-box}} html,body{{margin:0;background:#d9dee5;font-family:'Noto Sans CJK SC',sans-serif;color:#24272d}}
     .page{{background:#fff;position:relative;overflow:hidden;margin:20px}}
     .mobile{{width:760px;height:3000px;padding:34px 40px}}
-    .agreement{{width:900px;height:2500px;padding:48px 54px}}
+    .agreement{{width:900px;height:2500px;padding:48px 54px;font-family:'Noto Serif CJK SC',serif}}
     .table-page{{width:1400px;height:1900px;padding:44px 48px}}
+    .compact{{width:640px;height:2200px;padding:24px 28px}}
+    .compact h1{{font-size:22px;margin-top:17px}} .compact h2{{font-size:14px;margin-top:11px}}
+    .compact p{{font-size:13px;line-height:1.55;margin:2px 0 5px}}
+    .appbar{{display:flex;justify-content:space-between;font-size:14px;border-bottom:1px solid #e4e7ec;padding-bottom:10px}}
+    .dark{{width:760px;height:2200px;padding:34px 40px;background:#15181d;color:#e4e7ec}}
+    .dark h1,.dark h2{{color:#f2f4f7}} .dark header{{color:#98a2b3;border-color:#344054}}
+    .dark .lead{{background:#20242c;border-left-color:#53b1fd}} .dark a{{color:#53b1fd}}
+    .stress{{width:820px;height:2800px;padding:36px 44px}}
+    .stress p{{font-size:14px;line-height:1.55;margin:2px 0 5px}}
+    .stress h2{{font-size:15px;margin:10px 0 2px}} .medium{{font-weight:500}}
+    .stress-row{{border-bottom:1px solid #eaecf0;padding-bottom:4px}}
     header{{display:flex;justify-content:space-between;border-bottom:1px solid #d0d5dd;padding-bottom:12px;font-size:14px;color:#667085}}
     h1{{font-size:27px;line-height:1.35;margin:22px 0 14px;color:#101828}} h2{{font-size:16px;line-height:1.5;margin:14px 0 3px}}
     p{{font-size:14px;line-height:1.62;margin:3px 0 7px;text-align:justify}} .mobile p{{font-size:16px;line-height:1.58}}
@@ -101,7 +164,7 @@ def html() -> str:
     .sign{{display:flex;justify-content:space-between;border-top:1px solid #98a2b3;margin-top:25px;padding-top:18px;font-size:14px}}
     table{{width:100%;border-collapse:collapse;font-size:12px;line-height:1.4}} th,td{{border:1px solid #cfd4dc;padding:6px 7px}}
     th{{font-weight:700;background:#eef1f5;text-align:left}} td:nth-child(1),td:nth-child(3),td:nth-child(5),td:nth-child(6){{white-space:nowrap}}
-    </style></head><body>{dense_mobile()}{dense_user_agreement()}{dense_table()}</body></html>"""
+    </style></head><body>{dense_mobile()}{dense_user_agreement()}{dense_table()}{compact_consent()}{dark_policy()}{inline_style_stress()}</body></html>"""
 
 
 COLLECT = r"""(page) => {

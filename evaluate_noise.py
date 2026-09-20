@@ -11,12 +11,14 @@ import cv2
 from eval_utils import assign_lines, binary_metrics
 from noisy_fixtures import generate_noisy
 from style_demo import FontDNA, classify_units, ensure_fontdna, style_key
+from textar_backend import TexTARBackend, ensure_textar
 
 
 def main() -> None:
     fixture_dir = Path("testdata/noisy")
     manifest = json.loads(generate_noisy(fixture_dir).read_text(encoding="utf-8"))
     model = FontDNA(ensure_fontdna(Path(".cache/fontdna/glyphdna.int8.onnx")))
+    textar = TexTARBackend(ensure_textar(Path(".cache/textar/TexTAR-trained.pt")))
     aggregate = {
         variant: {name: [] for name in ("bold", "underline", "colored")}
         for variant in manifest["variants"]
@@ -25,7 +27,7 @@ def main() -> None:
     for case in manifest["cases"]:
         image = cv2.imread(str(fixture_dir / case["image"]))
         units, line_boxes = assign_lines(case["units"])
-        classify_units(image, units, line_boxes, model)
+        classify_units(image, units, line_boxes, model, textar)
         pairs = {name: [] for name in ("bold", "underline", "colored")}
         for unit in units:
             truth = unit._truth  # type: ignore[attr-defined]

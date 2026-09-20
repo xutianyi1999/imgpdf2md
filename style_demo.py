@@ -151,6 +151,7 @@ class Unit:
     bold: bool | None = None
     bold_confidence: float = 0.0
     fontdna: dict[str, float] | None = None
+    textar: dict[str, float] | None = None
     stroke_width: float | None = None
     morphology_bold_score: float | None = None
     visual_font_height_px: int | None = None
@@ -224,7 +225,7 @@ def estimate_color(image: np.ndarray, box: list[int]) -> tuple[str | None, bool,
     # A higher chroma floor avoids treating browser subpixel antialiasing on
     # dense gray/black text as an intentional font color. The target documents
     # use clearly accented link/warning colors; muted gray remains normal text.
-    colored = bool(chroma >= 70 and maximum >= 75)
+    colored = bool(chroma >= 95 and maximum >= 75)
     confidence = min(1.0, max(0.0, (chroma - 15) / 80)) if colored else 0.9
     return f"#{red:02x}{green:02x}{blue:02x}", colored, confidence
 
@@ -402,11 +403,70 @@ def build_units(pruned: dict[str, Any]) -> tuple[list[Unit], list[list[int]]]:
     return units, [list(map(int, box)) for box in line_boxes]
 
 
+def textar_span_candidates(
+    units: list[Unit],
+    low_probability: float = 0.25,
+    strong_probability: float = 0.55,
+    minimum_mean: float = 0.40,
+) -> set[int]:
+    """Select coherent bold spans while rejecting isolated TexTAR spikes."""
+    selected: set[int] = set()
+
+    def probability(index: int) -> float:
+        return float((units[index].textar or {}).get("bold", -1.0))
+
+    def adjacent(left: Unit, right: Unit) -> bool:
+        if left.line_index != right.line_index:
+            return False
+        left_width = max(1, left.box[2] - left.box[0])
+        right_width = max(1, right.box[2] - right.box[0])
+        gap = right.box[0] - left.box[2]
+        return -0.5 * min(left_width, right_width) <= gap <= 0.85 * max(
+            left_width, right_width
+        )
+
+    def accept(segment: list[int]) -> None:
+        if not segment:
+            return
+        scores = [probability(index) for index in segment]
+        character_count = sum(
+            sum(character.isalnum() for character in units[index].text)
+            for index in segment
+        )
+        if (
+            character_count >= 2
+            and max(scores) >= strong_probability
+            and float(np.mean(scores)) >= minimum_mean
+        ):
+            selected.update(segment)
+
+    for line_index in sorted({unit.line_index for unit in units}):
+        line_indices = [
+            index for index, unit in enumerate(units) if unit.line_index == line_index
+        ]
+        segment: list[int] = []
+        for index in line_indices:
+            eligible = (
+                any(character.isalnum() for character in units[index].text)
+                and probability(index) >= low_probability
+            )
+            if eligible and (
+                not segment or adjacent(units[segment[-1]], units[index])
+            ):
+                segment.append(index)
+            else:
+                accept(segment)
+                segment = [index] if eligible else []
+        accept(segment)
+    return selected
+
+
 def classify_units(
     image: np.ndarray,
     units: list[Unit],
     line_boxes: list[list[int]],
     fontdna: FontDNA | None,
+    textar: Any | None = None,
 ) -> None:
     segments_by_line = [underline_segments(image, box) for box in line_boxes]
     line_strokes: dict[int, list[float]] = {}
@@ -434,6 +494,14 @@ def classify_units(
         unit.underline_confidence = min(1.0, best_overlap) if unit.underline else 0.9
 
     harmonize_line_colors(units)
+
+    if textar is not None:
+        try:
+            for unit, prediction in zip(units, textar.predict(image, units)):
+                unit.textar = prediction
+        except Exception as exc:
+            print(f"TexTAR inference skipped: {exc}", file=sys.stderr)
+    textar_bold_indices = textar_span_candidates(units)
 
     # FontDNA is explicitly a word-crop model. PP-OCR returns Chinese as single
     # characters, so use jieba only to form visual word crops; OCR text remains
@@ -485,7 +553,7 @@ def classify_units(
             if len(group_scores) >= 3:
                 morphology_baselines[line_index] = float(np.percentile(group_scores, 25))
 
-    for unit in units:
+    for unit_index, unit in enumerate(units):
         model_bold = None
         model_conf = 0.0
         if unit.fontdna and "bold" in unit.fontdna:
@@ -520,12 +588,30 @@ def classify_units(
                 morphology_bold = False
             morphology_conf = min(0.95, max(0.0, (delta - 0.12) / 0.18))
 
-        # Union of two independent high-precision signals. FontDNA recovers
-        # all-bold headings; the relative morphology signal recovers inline
-        # bold where a normal-weight baseline exists on the same line.
-        if model_bold is True or morphology_bold is True:
+        textar_bold = None
+        textar_conf = 0.0
+        if unit.textar and "bold" in unit.textar:
+            probability = float(unit.textar["bold"])
+            fontdna_probability = float((unit.fontdna or {}).get("bold", -1.0))
+            # Calibrated for high precision on the source-labelled dense suite.
+            # A single character needs agreement from the independent word
+            # crop model; coherent spans can safely recover lower-score gaps.
+            if unit_index in textar_bold_indices or (
+                probability >= 0.60 and fontdna_probability >= 0.40
+            ):
+                textar_bold = True
+            textar_conf = min(1.0, max(0.0, (probability - 0.40) / 0.35))
+
+        # Union of independent high-precision signals. TexTAR supplies page
+        # context, FontDNA covers word crops, and relative morphology recovers
+        # inline bold where a normal-weight baseline exists on the same line.
+        if model_bold is True or morphology_bold is True or textar_bold is True:
             unit.bold = True
-            unit.bold_confidence = max(model_conf if model_bold else 0.0, morphology_conf)
+            unit.bold_confidence = max(
+                model_conf if model_bold else 0.0,
+                morphology_conf if morphology_bold else 0.0,
+                textar_conf if textar_bold else 0.0,
+            )
         elif model_bold is False and morphology_bold is False:
             unit.bold = False
             unit.bold_confidence = max(model_conf, morphology_conf)
@@ -817,6 +903,7 @@ def process_page(
     output_dir: Path,
     client: AIStudioClient | None,
     fontdna: FontDNA | None,
+    textar: Any | None = None,
     ppocr_jsonl: Path | None = None,
     vl_jsonl: Path | None = None,
 ) -> None:
@@ -867,7 +954,7 @@ def process_page(
                         box[:] = [round(box[0] * scale_x), round(box[1] * scale_y), round(box[2] * scale_x), round(box[3] * scale_y)]
 
     units, line_boxes = build_units(pruned)
-    classify_units(image, units, line_boxes, fontdna)
+    classify_units(image, units, line_boxes, fontdna, textar)
     result, styled_ocr_markdown = create_result(units, len(line_boxes))
     vl_markdown = extract_vl_markdown(vl)
     styled_markdown, alignment_coverage = enrich_vl_markdown(vl_markdown, units)
@@ -891,6 +978,8 @@ def main() -> None:
     parser.add_argument("--env", type=Path, default=Path(".env"))
     parser.add_argument("--no-fontdna", action="store_true")
     parser.add_argument("--fontdna-model", type=Path, default=Path(".cache/fontdna/glyphdna.int8.onnx"))
+    parser.add_argument("--textar", action="store_true", help="Enable the optional context-aware TexTAR backend")
+    parser.add_argument("--textar-model", type=Path, default=Path(".cache/textar/TexTAR-trained.pt"))
     parser.add_argument("--ppocr-jsonl", type=Path)
     parser.add_argument("--vl-jsonl", type=Path)
     args = parser.parse_args()
@@ -899,6 +988,14 @@ def main() -> None:
     token = env.get("TOKEN") or os.environ.get("PADDLEOCR_ACCESS_TOKEN")
     client = AIStudioClient(token) if token else None
     model = None if args.no_fontdna else FontDNA(ensure_fontdna(args.fontdna_model))
+    textar = None
+    if args.textar:
+        try:
+            from textar_backend import TexTARBackend, ensure_textar
+
+            textar = TexTARBackend(ensure_textar(args.textar_model))
+        except ImportError as exc:
+            parser.error(f"TexTAR dependencies are missing; run with the textar dependency group: {exc}")
 
     stem_dir = args.output / args.input.stem
     if args.input.suffix.lower() == ".pdf":
@@ -916,6 +1013,7 @@ def main() -> None:
             page_output,
             client,
             model,
+            textar,
             args.ppocr_jsonl if len(pages) == 1 else None,
             args.vl_jsonl if len(pages) == 1 else None,
         )

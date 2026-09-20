@@ -9,8 +9,10 @@
 
 标题、段落、列表、表格及阅读顺序由 AI Studio `PaddleOCR-VL-1.6` 提供；
 `PP-OCRv6 + returnWordBox=true` 提供细粒度坐标。本地使用 OpenCV 提取颜色、
-检测连续下划线，使用 FontDNA-V2 和同一行相对笔画特征判断粗体，再把样式
-对齐回 VL Markdown。
+检测连续下划线。粗体由 TexTAR 上下文模型、FontDNA-V2 和同一行相对笔画
+特征共同判断，并使用受行、标点和字符间距约束的连续片段补齐，再把样式对齐回
+VL Markdown。所有文档图片只发送到国内的
+AI Studio；TexTAR 和视觉算法均在本地运行。
 
 ## 运行
 
@@ -25,8 +27,18 @@ uv sync
 uv run python style_demo.py input.png
 ```
 
+启用当前准确率更高的 TexTAR 后端：
+
+```bash
+uv sync --group textar
+uv run --group textar python style_demo.py input.png --textar
+```
+
 首次运行会下载约 9 MB 的 FontDNA-V2 INT8 ONNX 模型到
-`.cache/fontdna/`。每页输出位于 `demo_output/<输入名>/page-0001/`：
+`.cache/fontdna/`。启用 TexTAR 时还会一次性下载约 66 MB 的公开权重到
+`.cache/textar/`；之后推理完全本地执行。也可提前下载并通过
+`--textar-model` 指定本地路径。每页输出位于
+`demo_output/<输入名>/page-0001/`：
 
 - `styled.md`：保留 VL 结构并回填样式的最终 Markdown；
 - `styles.json`：逐字符/词坐标、三态粗体、颜色和下划线证据；
@@ -42,23 +54,30 @@ uv run python style_demo.py input.png
 
 ```bash
 uv run python dense_fixtures.py
-uv run python evaluate_dense.py
-uv run python evaluate_noise.py
+uv run --group textar python evaluate_dense.py
+uv run --group textar python evaluate_noise.py
 uv run python evaluate_api_dense.py
 uv run pytest -q
 ```
 
-`testdata/dense/` 只包含三类目标文档：
+`testdata/dense/` 包含六类目标文档：
 
 1. 760×3000 APP 隐私政策长截图；
 2. 用户服务协议与个人信息授权书；
-3. 密集个人信息收集与使用清单表格。
+3. 密集个人信息收集与使用清单表格；
+4. 640 px 窄屏、小字号的授权确认页；
+5. 深色模式隐私政策；
+6. 行内粗体边界压力页，覆盖单字粗体、中等字重、相邻粗体和组合样式。
 
-噪声版本只覆盖缩放、聊天软件 JPEG、模糊/噪点和低对比度色偏。
+用户协议正文使用衬线字体，其他用例使用无衬线字体；内容同时覆盖中文、数字、
+英文邮箱、局部粗体、彩色字和下划线链接。
+
+噪声版本覆盖 0.85/0.67 倍缩放、中度/强度 JPEG、模糊噪点和低对比度色偏。
 
 ## 范围边界
 
 本 Demo 不重复实现长截图分页或拼接。字体名、精确 CSS 字号、斜体、删除线、
 上标下标和背景高亮不在当前核心范围；`visual_font_height_px` 与
 `relative_size` 只作为坐标诊断值。压缩和缩小会显著降低粗体识别精度，详见
-`VALIDATION.md`，不能把当前模型当成生产级中文字重识别器。
+`VALIDATION.md`。TexTAR 的公开代码采用 MIT License，但模型仓库没有填写
+许可证元数据，生产使用前仍需向发布方确认权重授权。
