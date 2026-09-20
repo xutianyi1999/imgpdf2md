@@ -53,7 +53,9 @@ uv run --group textar python style_demo.py input.png --textar
 - `ppocr.jsonl`、`vl.jsonl`：API 原始结果缓存。
 
 粗体使用 `true / false / null`。只有高置信证据才写成 `true` 并渲染为
-`**...**`；中间区域保留为 `null`，避免把识别失败解释成普通字重。
+`<strong>...</strong>`；中间区域保留为 `null`，避免把识别失败解释成普通字重。
+采用 HTML 粗体是为了兼容 VL 的 HTML 表格和中文标点边界，避免星号存在但
+标准 Markdown 查看器未显示粗体。输出仍是带标题、段落等结构的 Markdown。
 
 ## 目标场景测试
 
@@ -118,6 +120,33 @@ uv run python finalize_bold_recall.py
 
 `experiment_bold.py` / `bold_refinement.py` 是未接入主流程的同字模板匹配实验，
 结果在 `glyph_evaluation.json`，原图召回仅增加约 0.45 个百分点。
+
+最新固定划分验证集位于 `testdata/policy_validation/`：开发/保留集各 8 页，每页
+有原图、JPEG Q55、整行坐标偏移三种版本，共 48 个输入。跨行补齐只处理相邻、
+同字号、左右对齐且间距合理的长行；不会把整段统一判粗。正常推理次数不增加。
+
+```bash
+uv run python policy_validation_fixtures.py
+uv run --group textar python evaluate_policy_validation.py --split development
+uv run --group textar python evaluate_policy_validation.py --split holdout
+uv run python build_validation_report.py
+```
+
+生成器检查相同文字的常规/粗体像素是否有差异。当前两页 AR PL UMing 的正文
+没有差异，作为不可辨识对照保留；汇总另列可辨识页面，原始全量报告仍保存。
+`build_validation_report.py` 在 API 对照结果存在时也汇总两张新页面的真实 API
+验证结果；浏览 `testdata/policy_validation/review.html` 查看全部本地结果。
+
+最终 Markdown 评测改用 `markdown-it-py` 的 CommonMark 渲染，而非手写星号解析。
+例如：
+
+```bash
+uv run python evaluate_api_dense.py --truth testdata/policy_validation/ground_truth.json --output-root demo_output/validation_after
+uv run python render_cached_styles.py demo_output/validation_after/holdout_table/page-0001
+```
+
+后一条命令从 `styles.json` 和 `vl.md` 重建 Markdown 与 HTML 预览，不调用 API
+或模型。旧报告中手写解析得到的“最终 Markdown 指标”不可直接与新版分数混用。
 
 ## 范围边界
 

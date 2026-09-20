@@ -1,0 +1,273 @@
+{
+  "scope": "Two new AI Studio pages; identical OCR response caches for paired rendering; CommonMark+HTML and symmetric NFKC evaluation",
+  "results": {
+    "before": {
+      "cases": [
+        {
+          "name": "development_wrapped",
+          "characters": 1013,
+          "coordinate_coverage": 1.0,
+          "text_sequence_similarity": 1.0,
+          "vl_alignment_coverage": 1.0,
+          "metrics": {
+            "bold": {
+              "tp": 386,
+              "fp": 0,
+              "fn": 45,
+              "tn": 582,
+              "precision": 1.0,
+              "recall": 0.8955916473317865,
+              "f1": 0.944920440636475
+            },
+            "underline": {
+              "tp": 48,
+              "fp": 124,
+              "fn": 24,
+              "tn": 817,
+              "precision": 0.27906976744186046,
+              "recall": 0.6666666666666666,
+              "f1": 0.3934426229508197
+            },
+            "colored": {
+              "tp": 70,
+              "fp": 0,
+              "fn": 2,
+              "tn": 941,
+              "precision": 1.0,
+              "recall": 0.9722222222222222,
+              "f1": 0.9859154929577464
+            }
+          },
+          "final_markdown_metrics": {
+            "bold": {
+              "tp": 359,
+              "fp": 0,
+              "fn": 72,
+              "tn": 582,
+              "precision": 1.0,
+              "recall": 0.8329466357308585,
+              "f1": 0.908860759493671
+            },
+            "underline": {
+              "tp": 70,
+              "fp": 124,
+              "fn": 2,
+              "tn": 817,
+              "precision": 0.36082474226804123,
+              "recall": 0.9722222222222222,
+              "f1": 0.5263157894736842
+            },
+            "colored": {
+              "tp": 70,
+              "fp": 0,
+              "fn": 2,
+              "tn": 941,
+              "precision": 1.0,
+              "recall": 0.9722222222222222,
+              "f1": 0.9859154929577464
+            }
+          }
+        },
+        {
+          "name": "holdout_table",
+          "characters": 875,
+          "coordinate_coverage": 1.0,
+          "text_sequence_similarity": 0.9177142857142857,
+          "vl_alignment_coverage": 0.9168591224018475,
+          "metrics": {
+            "bold": {
+              "tp": 140,
+              "fp": 19,
+              "fn": 5,
+              "tn": 711,
+              "precision": 0.8805031446540881,
+              "recall": 0.9655172413793104,
+              "f1": 0.9210526315789475
+            },
+            "underline": {
+              "tp": 0,
+              "fp": 32,
+              "fn": 32,
+              "tn": 811,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "colored": {
+              "tp": 32,
+              "fp": 0,
+              "fn": 0,
+              "tn": 843,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "final_markdown_metrics": {
+            "bold": {
+              "tp": 13,
+              "fp": 14,
+              "fn": 132,
+              "tn": 716,
+              "precision": 0.48148148148148145,
+              "recall": 0.0896551724137931,
+              "f1": 0.1511627906976744
+            },
+            "underline": {
+              "tp": 0,
+              "fp": 32,
+              "fn": 32,
+              "tn": 811,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "colored": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 32,
+              "tn": 843,
+              "precision": 1.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "cases": [
+        {
+          "name": "development_wrapped",
+          "characters": 1013,
+          "coordinate_coverage": 1.0,
+          "text_sequence_similarity": 1.0,
+          "vl_alignment_coverage": 1.0,
+          "metrics": {
+            "bold": {
+              "tp": 387,
+              "fp": 0,
+              "fn": 44,
+              "tn": 582,
+              "precision": 1.0,
+              "recall": 0.8979118329466357,
+              "f1": 0.9462102689486551
+            },
+            "underline": {
+              "tp": 48,
+              "fp": 124,
+              "fn": 24,
+              "tn": 817,
+              "precision": 0.27906976744186046,
+              "recall": 0.6666666666666666,
+              "f1": 0.3934426229508197
+            },
+            "colored": {
+              "tp": 70,
+              "fp": 0,
+              "fn": 2,
+              "tn": 941,
+              "precision": 1.0,
+              "recall": 0.9722222222222222,
+              "f1": 0.9859154929577464
+            }
+          },
+          "final_markdown_metrics": {
+            "bold": {
+              "tp": 401,
+              "fp": 0,
+              "fn": 30,
+              "tn": 582,
+              "precision": 1.0,
+              "recall": 0.9303944315545244,
+              "f1": 0.9639423076923077
+            },
+            "underline": {
+              "tp": 70,
+              "fp": 124,
+              "fn": 2,
+              "tn": 817,
+              "precision": 0.36082474226804123,
+              "recall": 0.9722222222222222,
+              "f1": 0.5263157894736842
+            },
+            "colored": {
+              "tp": 70,
+              "fp": 0,
+              "fn": 2,
+              "tn": 941,
+              "precision": 1.0,
+              "recall": 0.9722222222222222,
+              "f1": 0.9859154929577464
+            }
+          }
+        },
+        {
+          "name": "holdout_table",
+          "characters": 875,
+          "coordinate_coverage": 1.0,
+          "text_sequence_similarity": 0.9177142857142857,
+          "vl_alignment_coverage": 0.9168591224018475,
+          "metrics": {
+            "bold": {
+              "tp": 140,
+              "fp": 19,
+              "fn": 5,
+              "tn": 711,
+              "precision": 0.8805031446540881,
+              "recall": 0.9655172413793104,
+              "f1": 0.9210526315789475
+            },
+            "underline": {
+              "tp": 0,
+              "fp": 32,
+              "fn": 32,
+              "tn": 811,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "colored": {
+              "tp": 32,
+              "fp": 0,
+              "fn": 0,
+              "tn": 843,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "final_markdown_metrics": {
+            "bold": {
+              "tp": 140,
+              "fp": 19,
+              "fn": 5,
+              "tn": 711,
+              "precision": 0.8805031446540881,
+              "recall": 0.9655172413793104,
+              "f1": 0.9210526315789475
+            },
+            "underline": {
+              "tp": 0,
+              "fp": 32,
+              "fn": 32,
+              "tn": 811,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "colored": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 32,
+              "tn": 843,
+              "precision": 1.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          }
+        }
+      ]
+    }
+  }
+}

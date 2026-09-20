@@ -29,6 +29,8 @@ def build(root=Path('testdata/policy'), report_name='evaluation.json', result_di
             color = '#e22' if error['predicted_bold'] else '#1683ff'
             boxes.append(f'<i title="{html.escape(error["text"])}" style="left:{x1}px;top:{y1}px;width:{x2-x1}px;height:{y2-y1}px;border-color:{color}"></i>')
         title = f"{case['case']} / {case['variant']}"
+        if case.get('bold_observable') is False:
+            title += '（正文的源字重在像素中不可区分）'
         body = f'''<!doctype html><meta charset="utf-8"><title>{title}</title>
 <style>body{{font-family:sans-serif;margin:24px}}main{{display:flex;gap:30px;align-items:flex-start}}
 .source{{position:relative;flex-shrink:0}}img{{display:block}}i{{position:absolute;border:1px solid;box-sizing:border-box;pointer-events:none}}
@@ -40,7 +42,8 @@ input:not(:checked)~main i{{display:none}}article{{min-width:400px;line-height:1
 <main><div class="source"><img src="input.png">{''.join(boxes)}</div><article>{''.join(lines)}</article></main>'''
         (root / folder / 'review.html').write_text(body, encoding='utf-8')
         links.append(f'<li><a href="{folder.as_posix()}/review.html">{title}</a></li>')
-    (root / index_name).write_text('<!doctype html><meta charset="utf-8"><h1>密集协议样式回归</h1><p>8 类虚构文档 × 原图、JPEG、缩放，共 24 页。每页可对照原图并显示粗体错误。</p><ul>' + ''.join(links) + '</ul>', encoding='utf-8')
+    count=len({case['case'] for case in report['cases'] if case['suite']=='policy'})
+    (root / index_name).write_text(f'<!doctype html><meta charset="utf-8"><h1>密集协议样式回归</h1><p>{count} 类虚构文档，共 {len(links)} 页。每页可对照原图并显示粗体错误。不可见字重对照的错误框仅代表源格式差异，不代表视觉识别错误。</p><ul>' + ''.join(links) + '</ul>', encoding='utf-8')
 
 
 if __name__ == '__main__':

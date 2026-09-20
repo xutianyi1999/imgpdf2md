@@ -469,6 +469,7 @@ def classify_units(
     textar: Any | None = None,
     *,
     preserve_span_confidence: bool = True,
+    soft_wrap: bool = True,
 ) -> None:
     segments_by_line = [underline_segments(image, box) for box in line_boxes]
     line_strokes: dict[int, list[float]] = {}
@@ -650,6 +651,12 @@ def classify_units(
         for index in bridge_bold_gaps(units):
             units[index].bold = True
             units[index].bold_confidence = max(units[index].bold_confidence, 0.25)
+        if soft_wrap:
+            from bold_context import wrapped_bold_candidates
+
+            for index in wrapped_bold_candidates(units):
+                units[index].bold = True
+                units[index].bold_confidence = max(units[index].bold_confidence, 0.25)
 
 
 def quantize_color(color: str) -> str:
@@ -673,7 +680,9 @@ def render_segment(text: str, key: tuple[bool, bool, str | None]) -> str:
     if underline:
         rendered = f"<u>{rendered}</u>"
     if bold:
-        rendered = f"**{rendered}**"
+        # HTML works both inside VL's HTML tables and next to Chinese
+        # punctuation; Markdown emphasis delimiters have flanking rules.
+        rendered = f"<strong>{rendered}</strong>"
     return rendered
 
 
@@ -698,8 +707,8 @@ def make_spans(units: list[Unit]) -> tuple[list[dict[str, Any]], str]:
         })
         rendered = render_segment(text, current_key)
         if len(spans) > 1 and spans[-2]['render_bold'] and current_key[0]:
-            markdown_parts[-1] = markdown_parts[-1][:-2]
-            rendered = rendered[2:]
+            markdown_parts[-1] = markdown_parts[-1][:-9]
+            rendered = rendered[8:]
         markdown_parts.append(rendered)
 
     for index, unit in enumerate(units):
@@ -862,8 +871,8 @@ def enrich_vl_markdown(markdown: str, units: list[Unit]) -> tuple[str, float]:
             key = active or (False, False, None)
             rendered = render_segment("".join(buffer), key)
             if previous_render_bold and key[0]:
-                output[-1] = output[-1][:-2]
-                rendered = rendered[2:]
+                output[-1] = output[-1][:-9]
+                rendered = rendered[8:]
             output.append(rendered)
             previous_render_bold = key[0]
         active, buffer = None, []

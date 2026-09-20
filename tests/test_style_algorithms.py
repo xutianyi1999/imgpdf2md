@@ -64,7 +64,7 @@ def test_styles_are_aligned_back_to_structured_vl_markdown():
         unit.color_confidence = 0.9
     rendered, coverage = enrich_vl_markdown("## 标题\n\n普通粗体蓝色", units)
     assert rendered.startswith("## 标题")
-    assert "**粗体**" in rendered
+    assert "<strong>粗体</strong>" in rendered
     assert '<span style="color:#0080ff">蓝色</span>' in rendered
     assert coverage == 1.0
 
@@ -127,9 +127,9 @@ def test_accepted_contextual_bold_survives_markdown_rendering():
     image = np.full((30, 45, 3), 255, np.uint8)
     units = [Unit(c, [i * 12, 0, i * 12 + 11, 18], 0) for i, c in enumerate("授权书")]
     classify_units(image, units, [[0, 0, 35, 18]], None, Predictions())
-    assert make_spans(units)[1] == "**授权书**"
+    assert make_spans(units)[1] == "<strong>授权书</strong>"
     classify_units(image, units, [[0, 0, 35, 18]], None, Predictions(), preserve_span_confidence=False)
-    assert make_spans(units)[1] == "授**权**书"
+    assert make_spans(units)[1] == "授<strong>权</strong>书"
 
 
 def test_policy_fixture_has_true_negative_and_wrapped_table(tmp_path):
@@ -174,7 +174,7 @@ def test_word_context_requires_support_and_renders_accepted_words():
 
     units=[Unit(c,[i*12,0,i*12+11,18],0) for i,c in enumerate('授权书')]
     classify_units(np.full((30,45,3),255,np.uint8),units,[[0,0,35,18]],None,Backend())
-    assert make_spans(units)[1]=='**授权书**'
+    assert make_spans(units)[1]=='<strong>授权书</strong>'
 
 
 def test_bold_gap_closing_is_supported_bounded_and_nonrecursive():
@@ -199,6 +199,60 @@ def test_adjacent_bold_with_color_change_has_one_markdown_wrapper():
     for u in units[:2]:
         u.colored=True
         u.color='#0080ff'
-    expected='**<span style="color:#0080ff">蓝色</span>正文**'
+    expected='<strong><span style="color:#0080ff">蓝色</span>正文</strong>'
     assert make_spans(units)[1]==expected
     assert enrich_vl_markdown('蓝色正文',units)[0]==expected
+
+
+def test_soft_wrap_requires_aligned_lines_tight_leading_and_supported_gap():
+    from bold_context import wrapped_bold_candidates
+
+    units=[Unit('字',[col*18,row*23,(col+1)*18,row*23+18],row,textar={'bold':.2})
+           for row in range(3) for col in range(10)]
+    for i in (8,11):
+        units[i].bold=True
+        units[i].bold_confidence=.8
+    assert wrapped_bold_candidates(units)=={9,10}
+    units[10].textar={'bold':.01}
+    assert wrapped_bold_candidates(units)==set()
+    units[10].textar={'bold':.2}
+    units[10].box[1]+=15
+    units[10].box[3]+=15
+    assert wrapped_bold_candidates(units)==set()
+    units[10].box=[36,23,54,41]
+    assert wrapped_bold_candidates(units)==set()
+
+
+def test_validation_families_have_disjoint_content_and_fixed_split():
+    from policy_validation_fixtures import TEXTS,MODES
+
+    assert len(MODES)==8
+    assert set(TEXTS)=={'development','holdout'}
+    development={phrase for section in TEXTS['development'] for phrase in section}
+    holdout={phrase for section in TEXTS['holdout'] for phrase in section}
+    assert development.isdisjoint(holdout)
+
+
+def test_html_table_bold_is_actually_rendered_and_not_just_star_syntax():
+    from evaluate_api_dense import rendered_characters
+
+    source='<table><tr><td>重点内容</td></tr></table>'
+    units=[Unit(c,[i*12,0,i*12+11,18],0,bold=True,bold_confidence=.8) for i,c in enumerate('重点内容')]
+    units[0].colored=True
+    units[0].color='#0080ff'
+    markdown,_=enrich_vl_markdown(source,units)
+    assert '**' not in markdown
+    assert '<strong>' in markdown
+    chars,styles=rendered_characters(markdown)
+    assert ''.join(chars)=='重点内容'
+    assert all(s['bold'] for s in styles)
+    _,incorrect=rendered_characters('<table><tr><td>**重点内容**</td></tr></table>')
+    assert not any(s['bold'] for s in incorrect)
+    _,ordinary=rendered_characters('普通文字\n\n**重点内容**')
+    assert not any(s['bold'] for s in ordinary[:4])
+    assert all(s['bold'] for s in ordinary[4:])
+    punctuation_units=[Unit(c,[i*12,0,i*12+11,18],0,bold=i<3,bold_confidence=.8) for i,c in enumerate('重点。普通')]
+    markup,_=enrich_vl_markdown('重点。普通',punctuation_units)
+    chars,actual=rendered_characters(markup)
+    assert ''.join(chars)=='重点。普通'
+    assert [s['bold'] for s in actual]==[True,True,True,False,False]

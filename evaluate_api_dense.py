@@ -9,54 +9,48 @@ import json
 import unicodedata
 from pathlib import Path
 from typing import Any
+from html.parser import HTMLParser
+from markdown_it import MarkdownIt
 
 from eval_utils import binary_metrics
 
 
 def rendered_characters(markdown: str) -> tuple[list[str], list[dict[str, bool]]]:
+    """Measure rendered HTML, not a guessed interpretation of star delimiters."""
     chars: list[str] = []
     styles: list[dict[str, bool]] = []
-    bold = False
-    underline_depth = color_depth = 0
-    heading = True
-    line_start = True
-    link_depth = 0
-    index = 0
-    while index < len(markdown):
-        if markdown[index] == "\n":
-            line_start, heading = True, False
-            index += 1
-            continue
-        if line_start and markdown[index] == "#":
-            heading = True
-            while index < len(markdown) and markdown[index] == "#": index += 1
-            while index < len(markdown) and markdown[index] == " ": index += 1
-            line_start = False
-            continue
-        line_start = False
-        if markdown.startswith("**", index):
-            bold = not bold; index += 2; continue
-        if markdown.startswith("<u>", index): underline_depth += 1; index += 3; continue
-        if markdown.startswith("</u>", index): underline_depth = max(0, underline_depth - 1); index += 4; continue
-        if markdown.startswith("<span", index):
-            end = markdown.find(">", index)
-            if end >= 0:
-                color_depth += int("color:" in markdown[index:end]); index = end + 1; continue
-        if markdown.startswith("</span>", index): color_depth = max(0, color_depth - 1); index += 7; continue
-        if markdown[index] == "<":
-            end = markdown.find(">", index)
-            if end >= 0: index = end + 1; continue
-        if markdown.startswith("](", index): link_depth = 1; index += 2; continue
-        if link_depth:
-            if markdown[index] == "(": link_depth += 1
-            elif markdown[index] == ")": link_depth -= 1
-            index += 1; continue
-        char = markdown[index]
-        if char in "[]`" or char.isspace(): index += 1; continue
-        for normalized in unicodedata.normalize("NFKC", char):
-            chars.append(normalized)
-            styles.append({"bold": bold or heading, "underline": underline_depth > 0, "colored": color_depth > 0})
-        index += 1
+
+    class VisibleHTML(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.stack=[]
+
+        def handle_starttag(self,tag,attrs):
+            if tag in {'br','img','hr','input','meta','link','wbr'}:
+                return
+            css=dict(attrs).get('style','') or ''
+            state={'bold':tag in {'b','strong','th','h1','h2','h3','h4','h5','h6'},
+                   'underline':tag=='u','colored':'color:' in css.replace(' ','')}
+            self.stack.append((tag,state))
+
+        def handle_endtag(self,tag):
+            for i in range(len(self.stack)-1,-1,-1):
+                if self.stack[i][0]==tag:
+                    del self.stack[i:]
+                    break
+
+        def handle_data(self,data):
+            if any(tag in {'script','style'} for tag,_ in self.stack):
+                return
+            state={key:any(value[key] for _,value in self.stack) for key in ('bold','underline','colored')}
+            for char in unicodedata.normalize('NFKC',data):
+                if not char.isspace():
+                    chars.append(char)
+                    styles.append(dict(state))
+
+    reader=VisibleHTML()
+    reader.feed(MarkdownIt('commonmark',{'html':True}).enable('table').render(markdown))
+    reader.close()
     return chars, styles
 
 
@@ -77,8 +71,9 @@ def match_unit(truth: dict[str, Any], predictions: list[dict[str, Any]]) -> dict
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-root', type=Path, default=Path('demo_output'))
+    parser.add_argument('--truth', type=Path, default=Path('testdata/dense/ground_truth.json'))
     args = parser.parse_args()
-    truth = json.loads(Path("testdata/dense/ground_truth.json").read_text(encoding="utf-8"))
+    truth = json.loads(args.truth.read_text(encoding="utf-8"))
     reports = []
     for case in truth["cases"]:
         styles_path = args.output_root / case["name"] / "page-0001" / "styles.json"
@@ -103,14 +98,22 @@ def main() -> None:
         styled_markdown = (styles_path.parent / "styled.md").read_text(encoding="utf-8")
         rendered_chars, rendered_styles = rendered_characters(styled_markdown)
         final_pairs = {name: [] for name in pairs}
-        truth_chars = list(truth_text)
-        final_by_truth: dict[int, dict[str, bool]] = {}
+        truth_chars = []
+        truth_owners = []
+        for index, expected in enumerate(case['units']):
+            normalized = list(unicodedata.normalize('NFKC', expected['text']))
+            truth_chars.extend(normalized)
+            truth_owners.extend([index] * len(normalized))
+        final_by_truth: dict[int, list[dict[str, bool]]] = {}
         matcher = difflib.SequenceMatcher(None, truth_chars, rendered_chars, autojunk=False)
         for block in matcher.get_matching_blocks():
             for offset in range(block.size):
-                final_by_truth[block.a + offset] = rendered_styles[block.b + offset]
+                owner = truth_owners[block.a + offset]
+                final_by_truth.setdefault(owner, []).append(rendered_styles[block.b + offset])
         for index, expected in enumerate(case["units"]):
-            predicted = final_by_truth.get(index, {"bold": False, "underline": False, "colored": False})
+            matches = final_by_truth.get(index, [])
+            required = len(unicodedata.normalize('NFKC', expected['text']))
+            predicted = {name: len(matches) == required and bool(matches) and all(m[name] for m in matches) for name in final_pairs}
             for name in final_pairs:
                 final_pairs[name].append((predicted[name], bool(expected[name])))
 
