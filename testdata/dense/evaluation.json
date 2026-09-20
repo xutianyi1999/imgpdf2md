@@ -1,0 +1,132 @@
+{
+  "metrics": {
+    "bold": {
+      "tp": 122,
+      "fp": 0,
+      "fn": 441,
+      "tn": 3161,
+      "precision": 1.0,
+      "recall": 0.216696269982238,
+      "f1": 0.35620437956204376
+    },
+    "underline": {
+      "tp": 123,
+      "fp": 0,
+      "fn": 208,
+      "tn": 3393,
+      "precision": 1.0,
+      "recall": 0.3716012084592145,
+      "f1": 0.5418502202643173
+    },
+    "colored": {
+      "tp": 253,
+      "fp": 0,
+      "fn": 0,
+      "tn": 3471,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  },
+  "cases": [
+    {
+      "name": "dense_mobile_policy",
+      "characters": 1500,
+      "metrics": {
+        "bold": {
+          "tp": 36,
+          "fp": 0,
+          "fn": 142,
+          "tn": 1322,
+          "precision": 1.0,
+          "recall": 0.20224719101123595,
+          "f1": 0.3364485981308411
+        },
+        "underline": {
+          "tp": 78,
+          "fp": 0,
+          "fn": 48,
+          "tn": 1374,
+          "precision": 1.0,
+          "recall": 0.6190476190476191,
+          "f1": 0.7647058823529412
+        },
+        "colored": {
+          "tp": 55,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1445,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "name": "dense_user_service_agreement",
+      "characters": 1089,
+      "metrics": {
+        "bold": {
+          "tp": 20,
+          "fp": 0,
+          "fn": 184,
+          "tn": 885,
+          "precision": 1.0,
+          "recall": 0.09803921568627451,
+          "f1": 0.17857142857142855
+        },
+        "underline": {
+          "tp": 45,
+          "fp": 0,
+          "fn": 40,
+          "tn": 1004,
+          "precision": 1.0,
+          "recall": 0.5294117647058824,
+          "f1": 0.6923076923076924
+        },
+        "colored": {
+          "tp": 46,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1043,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "name": "dense_personal_information_table",
+      "characters": 1135,
+      "metrics": {
+        "bold": {
+          "tp": 66,
+          "fp": 0,
+          "fn": 115,
+          "tn": 954,
+          "precision": 1.0,
+          "recall": 0.36464088397790057,
+          "f1": 0.5344129554655871
+        },
+        "underline": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 120,
+          "tn": 1015,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "colored": {
+          "tp": 152,
+          "fp": 0,
+          "fn": 0,
+          "tn": 983,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    }
+  ]
+}
