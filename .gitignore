@@ -9,3 +9,5 @@ __pycache__/
 testdata/noisy/
 .playwright-cli/
 testdata/policy/results/
+testdata/policy/context_results/
+testdata/policy/recall_results/

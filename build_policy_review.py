@@ -4,13 +4,13 @@ import json
 from pathlib import Path
 
 
-def build(root=Path('testdata/policy')):
-    report = json.loads((root / 'evaluation.json').read_text())
+def build(root=Path('testdata/policy'), report_name='evaluation.json', result_dir='results', index_name='review.html'):
+    report = json.loads((root / report_name).read_text())
     links = []
     for case in report['cases']:
         if case['suite'] != 'policy':
             continue
-        folder = Path('results') / case['case'] / case['variant']
+        folder = Path(result_dir) / case['case'] / case['variant']
         result = json.loads((root / folder / 'styles.json').read_text())
         lines = []
         for line in result['lines']:
@@ -40,7 +40,7 @@ input:not(:checked)~main i{{display:none}}article{{min-width:400px;line-height:1
 <main><div class="source"><img src="input.png">{''.join(boxes)}</div><article>{''.join(lines)}</article></main>'''
         (root / folder / 'review.html').write_text(body, encoding='utf-8')
         links.append(f'<li><a href="{folder.as_posix()}/review.html">{title}</a></li>')
-    (root / 'review.html').write_text('<!doctype html><meta charset="utf-8"><h1>密集协议样式回归</h1><p>8 类虚构文档 × 原图、JPEG、缩放，共 24 页。每页可对照原图并显示粗体错误。</p><ul>' + ''.join(links) + '</ul>', encoding='utf-8')
+    (root / index_name).write_text('<!doctype html><meta charset="utf-8"><h1>密集协议样式回归</h1><p>8 类虚构文档 × 原图、JPEG、缩放，共 24 页。每页可对照原图并显示粗体错误。</p><ul>' + ''.join(links) + '</ul>', encoding='utf-8')
 
 
 if __name__ == '__main__':

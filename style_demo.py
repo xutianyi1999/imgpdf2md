@@ -637,6 +637,20 @@ def classify_units(
             unit.bold = None
             unit.bold_confidence = max(model_conf, morphology_conf, heuristic_conf)
 
+        if (unit.textar or {}).get('word_context_enabled'):
+            from bold_context import accept_word_bold
+
+            if accept_word_bold(unit):
+                unit.bold = True
+                unit.bold_confidence = max(unit.bold_confidence, 0.35)
+
+    if any((unit.textar or {}).get('word_context_enabled') for unit in units):
+        from bold_context import bridge_bold_gaps
+
+        for index in bridge_bold_gaps(units):
+            units[index].bold = True
+            units[index].bold_confidence = max(units[index].bold_confidence, 0.25)
+
 
 def quantize_color(color: str) -> str:
     values = [int(color[index:index + 2], 16) for index in (1, 3, 5)]
@@ -682,7 +696,11 @@ def make_spans(units: list[Unit]) -> tuple[list[dict[str, Any]], str]:
             "bold": bold_state, "render_bold": current_key[0],
             "underline": current_key[1], "color": current_key[2],
         })
-        markdown_parts.append(render_segment(text, current_key))
+        rendered = render_segment(text, current_key)
+        if len(spans) > 1 and spans[-2]['render_bold'] and current_key[0]:
+            markdown_parts[-1] = markdown_parts[-1][:-2]
+            rendered = rendered[2:]
+        markdown_parts.append(rendered)
 
     for index, unit in enumerate(units):
         key = style_key(unit)
@@ -836,11 +854,18 @@ def enrich_vl_markdown(markdown: str, units: list[Unit]) -> tuple[str, float]:
     output: list[str] = []
     active: tuple[bool, bool, str | None] | None = None
     buffer: list[str] = []
+    previous_render_bold = False
 
     def flush() -> None:
-        nonlocal active, buffer
+        nonlocal active, buffer, previous_render_bold
         if buffer:
-            output.append(render_segment("".join(buffer), active or (False, False, None)))
+            key = active or (False, False, None)
+            rendered = render_segment("".join(buffer), key)
+            if previous_render_bold and key[0]:
+                output[-1] = output[-1][:-2]
+                rendered = rendered[2:]
+            output.append(rendered)
+            previous_render_bold = key[0]
         active, buffer = None, []
 
     for index, char in enumerate(markdown):
@@ -848,6 +873,7 @@ def enrich_vl_markdown(markdown: str, units: list[Unit]) -> tuple[str, float]:
         if char == "\n" or key is None:
             flush()
             output.append(char)
+            previous_render_bold = False
         elif active == key:
             buffer.append(char)
         else:
@@ -997,6 +1023,8 @@ def main() -> None:
     parser.add_argument("--no-fontdna", action="store_true")
     parser.add_argument("--fontdna-model", type=Path, default=Path(".cache/fontdna/glyphdna.int8.onnx"))
     parser.add_argument("--textar", action="store_true", help="Enable the optional context-aware TexTAR backend")
+    parser.add_argument("--bold-mode", choices=("balanced", "recall"), default="recall",
+                        help="With --textar: recall adds a gated word-context pass; balanced retains the single-view baseline")
     parser.add_argument("--textar-model", type=Path, default=Path(".cache/textar/TexTAR-trained.pt"))
     parser.add_argument("--ppocr-jsonl", type=Path)
     parser.add_argument("--vl-jsonl", type=Path)
@@ -1012,6 +1040,10 @@ def main() -> None:
             from textar_backend import TexTARBackend, ensure_textar
 
             textar = TexTARBackend(ensure_textar(args.textar_model))
+            if args.bold_mode == "recall":
+                from bold_context import WordContextEnsemble
+
+                textar = WordContextEnsemble(textar)
         except ImportError as exc:
             parser.error(f"TexTAR dependencies are missing; run with the textar dependency group: {exc}")
 

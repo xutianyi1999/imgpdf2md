@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import difflib
+import argparse
 import json
 import unicodedata
 from pathlib import Path
@@ -74,10 +75,13 @@ def match_unit(truth: dict[str, Any], predictions: list[dict[str, Any]]) -> dict
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output-root', type=Path, default=Path('demo_output'))
+    args = parser.parse_args()
     truth = json.loads(Path("testdata/dense/ground_truth.json").read_text(encoding="utf-8"))
     reports = []
     for case in truth["cases"]:
-        styles_path = Path("demo_output") / case["name"] / "page-0001" / "styles.json"
+        styles_path = args.output_root / case["name"] / "page-0001" / "styles.json"
         if not styles_path.exists():
             continue
         result = json.loads(styles_path.read_text(encoding="utf-8"))
@@ -118,7 +122,7 @@ def main() -> None:
             "metrics": {name: binary_metrics(value) for name, value in pairs.items()},
             "final_markdown_metrics": {name: binary_metrics(value) for name, value in final_pairs.items()},
         })
-    output = Path("demo_output/dense_api_evaluation.json")
+    output = args.output_root / 'dense_api_evaluation.json'
     output.write_text(json.dumps({"cases": reports}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"cases": reports}, ensure_ascii=False, indent=2))
     print(output)

@@ -1,0 +1,1325 @@
+{
+  "scope": "DOM-box local style ablation; context second pass reuses first-pass model cache; timings not standalone latency",
+  "groups": {
+    "dense/clean": {
+      "baseline": {
+        "tp": 928,
+        "fp": 89,
+        "fn": 290,
+        "tn": 5375,
+        "precision": 0.9124877089478859,
+        "recall": 0.7619047619047619,
+        "f1": 0.8304250559284116
+      },
+      "word_context": {
+        "tp": 1010,
+        "fp": 202,
+        "fn": 208,
+        "tn": 5262,
+        "precision": 0.8333333333333334,
+        "recall": 0.8292282430213465,
+        "f1": 0.8312757201646092
+      }
+    },
+    "style_matrix/clean": {
+      "baseline": {
+        "tp": 1366,
+        "fp": 149,
+        "fn": 1028,
+        "tn": 7035,
+        "precision": 0.9016501650165016,
+        "recall": 0.570593149540518,
+        "f1": 0.6988999744180098
+      },
+      "word_context": {
+        "tp": 1662,
+        "fp": 217,
+        "fn": 732,
+        "tn": 6967,
+        "precision": 0.8845130388504524,
+        "recall": 0.6942355889724311,
+        "f1": 0.7779077931195882
+      }
+    },
+    "policy/clean": {
+      "baseline": {
+        "tp": 1010,
+        "fp": 23,
+        "fn": 317,
+        "tn": 6647,
+        "precision": 0.9777347531461762,
+        "recall": 0.7611152976639035,
+        "f1": 0.8559322033898304
+      },
+      "word_context": {
+        "tp": 1075,
+        "fp": 25,
+        "fn": 252,
+        "tn": 6645,
+        "precision": 0.9772727272727273,
+        "recall": 0.8100979653353428,
+        "f1": 0.8858673259167696
+      }
+    },
+    "policy/jpeg_q55": {
+      "baseline": {
+        "tp": 615,
+        "fp": 5,
+        "fn": 712,
+        "tn": 6665,
+        "precision": 0.9919354838709677,
+        "recall": 0.46345139412207986,
+        "f1": 0.6317411402157165
+      },
+      "word_context": {
+        "tp": 868,
+        "fp": 5,
+        "fn": 459,
+        "tn": 6665,
+        "precision": 0.9942726231386025,
+        "recall": 0.6541070082893745,
+        "f1": 0.7890909090909092
+      }
+    },
+    "policy/resize_085": {
+      "baseline": {
+        "tp": 644,
+        "fp": 156,
+        "fn": 683,
+        "tn": 6514,
+        "precision": 0.805,
+        "recall": 0.4853051996985682,
+        "f1": 0.6055477197931358
+      },
+      "word_context": {
+        "tp": 795,
+        "fp": 173,
+        "fn": 532,
+        "tn": 6497,
+        "precision": 0.8212809917355371,
+        "recall": 0.5990957045968349,
+        "f1": 0.6928104575163399
+      }
+    }
+  },
+  "cases": [
+    {
+      "suite": "dense",
+      "name": "dense_mobile_policy",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 143,
+          "fp": 28,
+          "fn": 35,
+          "tn": 1294,
+          "precision": 0.8362573099415205,
+          "recall": 0.8033707865168539,
+          "f1": 0.8194842406876791
+        },
+        "word_context": {
+          "tp": 152,
+          "fp": 33,
+          "fn": 26,
+          "tn": 1289,
+          "precision": 0.8216216216216217,
+          "recall": 0.8539325842696629,
+          "f1": 0.8374655647382921
+        }
+      },
+      "seconds": {
+        "baseline": 4.449173602974042,
+        "word_context": 2.720648712012917
+      }
+    },
+    {
+      "suite": "dense",
+      "name": "dense_user_service_agreement",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 141,
+          "fp": 17,
+          "fn": 63,
+          "tn": 868,
+          "precision": 0.8924050632911392,
+          "recall": 0.6911764705882353,
+          "f1": 0.7790055248618784
+        },
+        "word_context": {
+          "tp": 150,
+          "fp": 19,
+          "fn": 54,
+          "tn": 866,
+          "precision": 0.8875739644970414,
+          "recall": 0.7352941176470589,
+          "f1": 0.8042895442359248
+        }
+      },
+      "seconds": {
+        "baseline": 3.6033528040279634,
+        "word_context": 2.069530210981611
+      }
+    },
+    {
+      "suite": "dense",
+      "name": "dense_personal_information_table",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 117,
+          "fp": 2,
+          "fn": 64,
+          "tn": 952,
+          "precision": 0.9831932773109243,
+          "recall": 0.6464088397790055,
+          "f1": 0.7799999999999999
+        },
+        "word_context": {
+          "tp": 131,
+          "fp": 50,
+          "fn": 50,
+          "tn": 904,
+          "precision": 0.7237569060773481,
+          "recall": 0.7237569060773481,
+          "f1": 0.723756906077348
+        }
+      },
+      "seconds": {
+        "baseline": 3.3553090060013346,
+        "word_context": 2.1005700929672457
+      }
+    },
+    {
+      "suite": "dense",
+      "name": "compact_mobile_consent",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 71,
+          "fp": 0,
+          "fn": 34,
+          "tn": 736,
+          "precision": 1.0,
+          "recall": 0.6761904761904762,
+          "f1": 0.8068181818181819
+        },
+        "word_context": {
+          "tp": 87,
+          "fp": 0,
+          "fn": 18,
+          "tn": 736,
+          "precision": 1.0,
+          "recall": 0.8285714285714286,
+          "f1": 0.90625
+        }
+      },
+      "seconds": {
+        "baseline": 2.687049614964053,
+        "word_context": 1.3901358360308222
+      }
+    },
+    {
+      "suite": "dense",
+      "name": "dark_mode_privacy_policy",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 65,
+          "fp": 8,
+          "fn": 20,
+          "tn": 574,
+          "precision": 0.8904109589041096,
+          "recall": 0.7647058823529411,
+          "f1": 0.8227848101265822
+        },
+        "word_context": {
+          "tp": 67,
+          "fp": 8,
+          "fn": 18,
+          "tn": 574,
+          "precision": 0.8933333333333333,
+          "recall": 0.788235294117647,
+          "f1": 0.8374999999999999
+        }
+      },
+      "seconds": {
+        "baseline": 2.2077158290194348,
+        "word_context": 1.3953354050172493
+      }
+    },
+    {
+      "suite": "dense",
+      "name": "inline_bold_boundary_stress",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 391,
+          "fp": 34,
+          "fn": 74,
+          "tn": 951,
+          "precision": 0.92,
+          "recall": 0.8408602150537634,
+          "f1": 0.8786516853932586
+        },
+        "word_context": {
+          "tp": 423,
+          "fp": 92,
+          "fn": 42,
+          "tn": 893,
+          "precision": 0.8213592233009709,
+          "recall": 0.9096774193548387,
+          "f1": 0.863265306122449
+        }
+      },
+      "seconds": {
+        "baseline": 4.076639861043077,
+        "word_context": 2.479525000031572
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "sans_12_weight600",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 83,
+          "fp": 18,
+          "fn": 116,
+          "tn": 581,
+          "precision": 0.8217821782178217,
+          "recall": 0.41708542713567837,
+          "f1": 0.5533333333333332
+        },
+        "word_context": {
+          "tp": 145,
+          "fp": 18,
+          "fn": 54,
+          "tn": 581,
+          "precision": 0.8895705521472392,
+          "recall": 0.7286432160804021,
+          "f1": 0.8011049723756906
+        }
+      },
+      "seconds": {
+        "baseline": 2.6261658369912766,
+        "word_context": 1.453275792999193
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "sans_14_weight700",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 149,
+          "fp": 14,
+          "fn": 50,
+          "tn": 584,
+          "precision": 0.9141104294478528,
+          "recall": 0.7487437185929648,
+          "f1": 0.8232044198895028
+        },
+        "word_context": {
+          "tp": 160,
+          "fp": 14,
+          "fn": 39,
+          "tn": 584,
+          "precision": 0.9195402298850575,
+          "recall": 0.8040201005025126,
+          "f1": 0.8579088471849866
+        }
+      },
+      "seconds": {
+        "baseline": 2.578823617019225,
+        "word_context": 1.462399392039515
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "sans_16_weight900",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 192,
+          "fp": 4,
+          "fn": 8,
+          "tn": 594,
+          "precision": 0.9795918367346939,
+          "recall": 0.96,
+          "f1": 0.9696969696969697
+        },
+        "word_context": {
+          "tp": 196,
+          "fp": 7,
+          "fn": 4,
+          "tn": 591,
+          "precision": 0.9655172413793104,
+          "recall": 0.98,
+          "f1": 0.9727047146401985
+        }
+      },
+      "seconds": {
+        "baseline": 2.7385826929821633,
+        "word_context": 1.35633511695778
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "sans_20_weight700",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 169,
+          "fp": 37,
+          "fn": 31,
+          "tn": 561,
+          "precision": 0.8203883495145631,
+          "recall": 0.845,
+          "f1": 0.8325123152709358
+        },
+        "word_context": {
+          "tp": 187,
+          "fp": 72,
+          "fn": 13,
+          "tn": 526,
+          "precision": 0.722007722007722,
+          "recall": 0.935,
+          "f1": 0.8148148148148148
+        }
+      },
+      "seconds": {
+        "baseline": 2.601090175972786,
+        "word_context": 1.395091410027817
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "serif_12_weight600",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 14,
+          "fp": 10,
+          "fn": 185,
+          "tn": 590,
+          "precision": 0.5833333333333334,
+          "recall": 0.07035175879396985,
+          "f1": 0.12556053811659193
+        },
+        "word_context": {
+          "tp": 34,
+          "fp": 18,
+          "fn": 165,
+          "tn": 582,
+          "precision": 0.6538461538461539,
+          "recall": 0.1708542713567839,
+          "f1": 0.2709163346613546
+        }
+      },
+      "seconds": {
+        "baseline": 2.6310216920101084,
+        "word_context": 1.5322714319918305
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "serif_14_weight700",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 58,
+          "fp": 2,
+          "fn": 141,
+          "tn": 597,
+          "precision": 0.9666666666666667,
+          "recall": 0.2914572864321608,
+          "f1": 0.44787644787644787
+        },
+        "word_context": {
+          "tp": 107,
+          "fp": 2,
+          "fn": 92,
+          "tn": 597,
+          "precision": 0.981651376146789,
+          "recall": 0.5376884422110553,
+          "f1": 0.6948051948051949
+        }
+      },
+      "seconds": {
+        "baseline": 2.496647878026124,
+        "word_context": 1.3564278399571776
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "serif_16_weight900",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 145,
+          "fp": 0,
+          "fn": 55,
+          "tn": 599,
+          "precision": 1.0,
+          "recall": 0.725,
+          "f1": 0.8405797101449275
+        },
+        "word_context": {
+          "tp": 161,
+          "fp": 22,
+          "fn": 39,
+          "tn": 577,
+          "precision": 0.8797814207650273,
+          "recall": 0.805,
+          "f1": 0.8407310704960835
+        }
+      },
+      "seconds": {
+        "baseline": 2.7116454049828462,
+        "word_context": 1.366152819013223
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "serif_20_weight700",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 166,
+          "fp": 17,
+          "fn": 34,
+          "tn": 582,
+          "precision": 0.907103825136612,
+          "recall": 0.83,
+          "f1": 0.8668407310704961
+        },
+        "word_context": {
+          "tp": 168,
+          "fp": 16,
+          "fn": 32,
+          "tn": 583,
+          "precision": 0.9130434782608695,
+          "recall": 0.84,
+          "f1": 0.8749999999999999
+        }
+      },
+      "seconds": {
+        "baseline": 2.6881366780144162,
+        "word_context": 1.4924567790003493
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "sans_13_weight600_dark",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 98,
+          "fp": 25,
+          "fn": 101,
+          "tn": 574,
+          "precision": 0.7967479674796748,
+          "recall": 0.49246231155778897,
+          "f1": 0.608695652173913
+        },
+        "word_context": {
+          "tp": 143,
+          "fp": 25,
+          "fn": 56,
+          "tn": 574,
+          "precision": 0.8511904761904762,
+          "recall": 0.7185929648241206,
+          "f1": 0.779291553133515
+        }
+      },
+      "seconds": {
+        "baseline": 2.6437456549610943,
+        "word_context": 1.4018677169806324
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "sans_15_weight700_gray",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 137,
+          "fp": 2,
+          "fn": 62,
+          "tn": 596,
+          "precision": 0.9856115107913669,
+          "recall": 0.6884422110552764,
+          "f1": 0.8106508875739645
+        },
+        "word_context": {
+          "tp": 143,
+          "fp": 2,
+          "fn": 56,
+          "tn": 596,
+          "precision": 0.9862068965517241,
+          "recall": 0.7185929648241206,
+          "f1": 0.8313953488372093
+        }
+      },
+      "seconds": {
+        "baseline": 2.8105183959705755,
+        "word_context": 1.4912891060230322
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "serif_13_weight600_gray",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 21,
+          "fp": 13,
+          "fn": 179,
+          "tn": 586,
+          "precision": 0.6176470588235294,
+          "recall": 0.105,
+          "f1": 0.1794871794871795
+        },
+        "word_context": {
+          "tp": 75,
+          "fp": 13,
+          "fn": 125,
+          "tn": 586,
+          "precision": 0.8522727272727273,
+          "recall": 0.375,
+          "f1": 0.5208333333333333
+        }
+      },
+      "seconds": {
+        "baseline": 2.6868934350204654,
+        "word_context": 1.4474651340278797
+      }
+    },
+    {
+      "suite": "style_matrix",
+      "name": "mixed_latin_digits",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 134,
+          "fp": 7,
+          "fn": 66,
+          "tn": 591,
+          "precision": 0.950354609929078,
+          "recall": 0.67,
+          "f1": 0.7859237536656891
+        },
+        "word_context": {
+          "tp": 143,
+          "fp": 8,
+          "fn": 57,
+          "tn": 590,
+          "precision": 0.9470198675496688,
+          "recall": 0.715,
+          "f1": 0.8148148148148147
+        }
+      },
+      "seconds": {
+        "baseline": 2.6949664130224846,
+        "word_context": 1.4467352359788492
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_narrow_inline",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 143,
+          "fp": 0,
+          "fn": 9,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.9407894736842105,
+          "f1": 0.9694915254237287
+        },
+        "word_context": {
+          "tp": 143,
+          "fp": 0,
+          "fn": 9,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.9407894736842105,
+          "f1": 0.9694915254237287
+        }
+      },
+      "seconds": {
+        "baseline": 3.1463819979690015,
+        "word_context": 1.7110223139752634
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_narrow_inline",
+      "variant": "jpeg_q55",
+      "metrics": {
+        "baseline": {
+          "tp": 113,
+          "fp": 0,
+          "fn": 39,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.743421052631579,
+          "f1": 0.8528301886792453
+        },
+        "word_context": {
+          "tp": 124,
+          "fp": 0,
+          "fn": 28,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.8157894736842105,
+          "f1": 0.898550724637681
+        }
+      },
+      "seconds": {
+        "baseline": 3.4425915369647555,
+        "word_context": 1.7491819309652783
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_narrow_inline",
+      "variant": "resize_085",
+      "metrics": {
+        "baseline": {
+          "tp": 89,
+          "fp": 23,
+          "fn": 63,
+          "tn": 769,
+          "precision": 0.7946428571428571,
+          "recall": 0.5855263157894737,
+          "f1": 0.6742424242424243
+        },
+        "word_context": {
+          "tp": 96,
+          "fp": 27,
+          "fn": 56,
+          "tn": 765,
+          "precision": 0.7804878048780488,
+          "recall": 0.631578947368421,
+          "f1": 0.6981818181818181
+        }
+      },
+      "seconds": {
+        "baseline": 3.308538042998407,
+        "word_context": 1.7868815629626624
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_full_bold",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 349,
+          "fp": 0,
+          "fn": 40,
+          "tn": 555,
+          "precision": 1.0,
+          "recall": 0.897172236503856,
+          "f1": 0.94579945799458
+        },
+        "word_context": {
+          "tp": 354,
+          "fp": 0,
+          "fn": 35,
+          "tn": 555,
+          "precision": 1.0,
+          "recall": 0.910025706940874,
+          "f1": 0.9528936742934052
+        }
+      },
+      "seconds": {
+        "baseline": 3.505253800016362,
+        "word_context": 3.0343424520106055
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_full_bold",
+      "variant": "jpeg_q55",
+      "metrics": {
+        "baseline": {
+          "tp": 278,
+          "fp": 5,
+          "fn": 111,
+          "tn": 550,
+          "precision": 0.9823321554770318,
+          "recall": 0.7146529562982005,
+          "f1": 0.8273809523809522
+        },
+        "word_context": {
+          "tp": 350,
+          "fp": 5,
+          "fn": 39,
+          "tn": 550,
+          "precision": 0.9859154929577465,
+          "recall": 0.8997429305912596,
+          "f1": 0.9408602150537635
+        }
+      },
+      "seconds": {
+        "baseline": 5.949582560977433,
+        "word_context": 2.958675061003305
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_full_bold",
+      "variant": "resize_085",
+      "metrics": {
+        "baseline": {
+          "tp": 197,
+          "fp": 13,
+          "fn": 192,
+          "tn": 542,
+          "precision": 0.9380952380952381,
+          "recall": 0.506426735218509,
+          "f1": 0.657762938230384
+        },
+        "word_context": {
+          "tp": 292,
+          "fp": 13,
+          "fn": 97,
+          "tn": 542,
+          "precision": 0.9573770491803278,
+          "recall": 0.7506426735218509,
+          "f1": 0.8414985590778097
+        }
+      },
+      "seconds": {
+        "baseline": 5.802012717002071,
+        "word_context": 2.9668810089933686
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_plain_negative",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 944,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "word_context": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 944,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "seconds": {
+        "baseline": 5.372676328988746,
+        "word_context": 2.8703853329643607
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_plain_negative",
+      "variant": "jpeg_q55",
+      "metrics": {
+        "baseline": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 944,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "word_context": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 944,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "seconds": {
+        "baseline": 5.7633686769986525,
+        "word_context": 2.955478191957809
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_plain_negative",
+      "variant": "resize_085",
+      "metrics": {
+        "baseline": {
+          "tp": 0,
+          "fp": 14,
+          "fn": 0,
+          "tn": 930,
+          "precision": 0.0,
+          "recall": 1.0,
+          "f1": 0.0
+        },
+        "word_context": {
+          "tp": 0,
+          "fp": 16,
+          "fn": 0,
+          "tn": 928,
+          "precision": 0.0,
+          "recall": 1.0,
+          "f1": 0.0
+        }
+      },
+      "seconds": {
+        "baseline": 5.541678351000883,
+        "word_context": 2.946062365954276
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_single_boundary",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 48,
+          "fp": 6,
+          "fn": 17,
+          "tn": 918,
+          "precision": 0.8888888888888888,
+          "recall": 0.7384615384615385,
+          "f1": 0.8067226890756303
+        },
+        "word_context": {
+          "tp": 48,
+          "fp": 6,
+          "fn": 17,
+          "tn": 918,
+          "precision": 0.8888888888888888,
+          "recall": 0.7384615384615385,
+          "f1": 0.8067226890756303
+        }
+      },
+      "seconds": {
+        "baseline": 3.9592420019907877,
+        "word_context": 1.773268062970601
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_single_boundary",
+      "variant": "jpeg_q55",
+      "metrics": {
+        "baseline": {
+          "tp": 23,
+          "fp": 0,
+          "fn": 42,
+          "tn": 924,
+          "precision": 1.0,
+          "recall": 0.35384615384615387,
+          "f1": 0.5227272727272727
+        },
+        "word_context": {
+          "tp": 24,
+          "fp": 0,
+          "fn": 41,
+          "tn": 924,
+          "precision": 1.0,
+          "recall": 0.36923076923076925,
+          "f1": 0.5393258426966292
+        }
+      },
+      "seconds": {
+        "baseline": 3.53273310395889,
+        "word_context": 1.8018247470026836
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_single_boundary",
+      "variant": "resize_085",
+      "metrics": {
+        "baseline": {
+          "tp": 23,
+          "fp": 25,
+          "fn": 42,
+          "tn": 899,
+          "precision": 0.4791666666666667,
+          "recall": 0.35384615384615387,
+          "f1": 0.40707964601769914
+        },
+        "word_context": {
+          "tp": 23,
+          "fp": 25,
+          "fn": 42,
+          "tn": 899,
+          "precision": 0.4791666666666667,
+          "recall": 0.35384615384615387,
+          "f1": 0.40707964601769914
+        }
+      },
+      "seconds": {
+        "baseline": 3.4843385179992765,
+        "word_context": 1.7354880819912069
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "sdk_table_wrapped",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 195,
+          "fp": 8,
+          "fn": 70,
+          "tn": 1071,
+          "precision": 0.9605911330049262,
+          "recall": 0.7358490566037735,
+          "f1": 0.8333333333333333
+        },
+        "word_context": {
+          "tp": 226,
+          "fp": 8,
+          "fn": 39,
+          "tn": 1071,
+          "precision": 0.9658119658119658,
+          "recall": 0.8528301886792453,
+          "f1": 0.9058116232464931
+        }
+      },
+      "seconds": {
+        "baseline": 4.5240264409803785,
+        "word_context": 2.1429698360152543
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "sdk_table_wrapped",
+      "variant": "jpeg_q55",
+      "metrics": {
+        "baseline": {
+          "tp": 63,
+          "fp": 0,
+          "fn": 202,
+          "tn": 1079,
+          "precision": 1.0,
+          "recall": 0.23773584905660378,
+          "f1": 0.38414634146341464
+        },
+        "word_context": {
+          "tp": 190,
+          "fp": 0,
+          "fn": 75,
+          "tn": 1079,
+          "precision": 1.0,
+          "recall": 0.7169811320754716,
+          "f1": 0.8351648351648352
+        }
+      },
+      "seconds": {
+        "baseline": 4.783787638996728,
+        "word_context": 2.1468911719857715
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "sdk_table_wrapped",
+      "variant": "resize_085",
+      "metrics": {
+        "baseline": {
+          "tp": 119,
+          "fp": 17,
+          "fn": 146,
+          "tn": 1062,
+          "precision": 0.875,
+          "recall": 0.4490566037735849,
+          "f1": 0.5935162094763091
+        },
+        "word_context": {
+          "tp": 154,
+          "fp": 23,
+          "fn": 111,
+          "tn": 1056,
+          "precision": 0.8700564971751412,
+          "recall": 0.5811320754716981,
+          "f1": 0.6968325791855203
+        }
+      },
+      "seconds": {
+        "baseline": 4.779220226977486,
+        "word_context": 2.195181063027121
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "consent_small_gray",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 49,
+          "fp": 0,
+          "fn": 103,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.3223684210526316,
+          "f1": 0.48756218905472637
+        },
+        "word_context": {
+          "tp": 59,
+          "fp": 0,
+          "fn": 93,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.3881578947368421,
+          "f1": 0.5592417061611374
+        }
+      },
+      "seconds": {
+        "baseline": 3.431517813995015,
+        "word_context": 1.8022911630105227
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "consent_small_gray",
+      "variant": "jpeg_q55",
+      "metrics": {
+        "baseline": {
+          "tp": 21,
+          "fp": 0,
+          "fn": 131,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.13815789473684212,
+          "f1": 0.24277456647398848
+        },
+        "word_context": {
+          "tp": 39,
+          "fp": 0,
+          "fn": 113,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.2565789473684211,
+          "f1": 0.4083769633507854
+        }
+      },
+      "seconds": {
+        "baseline": 3.578738974989392,
+        "word_context": 1.8790400579455309
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "consent_small_gray",
+      "variant": "resize_085",
+      "metrics": {
+        "baseline": {
+          "tp": 52,
+          "fp": 31,
+          "fn": 100,
+          "tn": 761,
+          "precision": 0.6265060240963856,
+          "recall": 0.34210526315789475,
+          "f1": 0.44255319148936173
+        },
+        "word_context": {
+          "tp": 54,
+          "fp": 36,
+          "fn": 98,
+          "tn": 756,
+          "precision": 0.6,
+          "recall": 0.35526315789473684,
+          "f1": 0.4462809917355372
+        }
+      },
+      "seconds": {
+        "baseline": 3.5027546389610507,
+        "word_context": 1.7724789660423994
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_dark_combined",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 134,
+          "fp": 5,
+          "fn": 18,
+          "tn": 787,
+          "precision": 0.9640287769784173,
+          "recall": 0.881578947368421,
+          "f1": 0.9209621993127147
+        },
+        "word_context": {
+          "tp": 134,
+          "fp": 7,
+          "fn": 18,
+          "tn": 785,
+          "precision": 0.950354609929078,
+          "recall": 0.881578947368421,
+          "f1": 0.9146757679180887
+        }
+      },
+      "seconds": {
+        "baseline": 3.3349027059739456,
+        "word_context": 1.8549077700008638
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_dark_combined",
+      "variant": "jpeg_q55",
+      "metrics": {
+        "baseline": {
+          "tp": 47,
+          "fp": 0,
+          "fn": 105,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.3092105263157895,
+          "f1": 0.4723618090452262
+        },
+        "word_context": {
+          "tp": 63,
+          "fp": 0,
+          "fn": 89,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.4144736842105263,
+          "f1": 0.586046511627907
+        }
+      },
+      "seconds": {
+        "baseline": 3.4383230640087277,
+        "word_context": 1.8047790760174394
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "privacy_dark_combined",
+      "variant": "resize_085",
+      "metrics": {
+        "baseline": {
+          "tp": 109,
+          "fp": 28,
+          "fn": 43,
+          "tn": 764,
+          "precision": 0.7956204379562044,
+          "recall": 0.7171052631578947,
+          "f1": 0.754325259515571
+        },
+        "word_context": {
+          "tp": 118,
+          "fp": 28,
+          "fn": 34,
+          "tn": 764,
+          "precision": 0.8082191780821918,
+          "recall": 0.7763157894736842,
+          "f1": 0.7919463087248322
+        }
+      },
+      "seconds": {
+        "baseline": 3.4750550619792193,
+        "word_context": 1.781883852032479
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_serif_dense",
+      "variant": "clean",
+      "metrics": {
+        "baseline": {
+          "tp": 92,
+          "fp": 4,
+          "fn": 60,
+          "tn": 788,
+          "precision": 0.9583333333333334,
+          "recall": 0.6052631578947368,
+          "f1": 0.7419354838709677
+        },
+        "word_context": {
+          "tp": 111,
+          "fp": 4,
+          "fn": 41,
+          "tn": 788,
+          "precision": 0.9652173913043478,
+          "recall": 0.7302631578947368,
+          "f1": 0.8314606741573033
+        }
+      },
+      "seconds": {
+        "baseline": 3.252799135982059,
+        "word_context": 1.8584778000367805
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_serif_dense",
+      "variant": "jpeg_q55",
+      "metrics": {
+        "baseline": {
+          "tp": 70,
+          "fp": 0,
+          "fn": 82,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.4605263157894737,
+          "f1": 0.6306306306306306
+        },
+        "word_context": {
+          "tp": 78,
+          "fp": 0,
+          "fn": 74,
+          "tn": 792,
+          "precision": 1.0,
+          "recall": 0.5131578947368421,
+          "f1": 0.6782608695652175
+        }
+      },
+      "seconds": {
+        "baseline": 3.4333851199480705,
+        "word_context": 1.834942017972935
+      }
+    },
+    {
+      "suite": "policy",
+      "name": "agreement_serif_dense",
+      "variant": "resize_085",
+      "metrics": {
+        "baseline": {
+          "tp": 55,
+          "fp": 5,
+          "fn": 97,
+          "tn": 787,
+          "precision": 0.9166666666666666,
+          "recall": 0.3618421052631579,
+          "f1": 0.5188679245283019
+        },
+        "word_context": {
+          "tp": 58,
+          "fp": 5,
+          "fn": 94,
+          "tn": 787,
+          "precision": 0.9206349206349206,
+          "recall": 0.3815789473684211,
+          "f1": 0.5395348837209303
+        }
+      },
+      "seconds": {
+        "baseline": 3.520030913001392,
+        "word_context": 1.7309112459770404
+      }
+    }
+  ]
+}

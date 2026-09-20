@@ -34,6 +34,11 @@ uv sync --group textar
 uv run --group textar python style_demo.py input.png --textar
 ```
 
+`--textar` 当前默认使用 `--bold-mode recall`：先跑原有单字上下文，再跑短词上下文，
+结合单字/FontDNA 证据补齐粗体，并检查最多两字的行内断点。没有训练新模型，
+但多一次 TexTAR 推理会增加耗时。使用 `--bold-mode balanced` 可恢复单视角基线。
+表格间距、换行和低证据字符会阻断断点补齐；短词由 OCR 文字分组，原文不被改写。
+
 首次运行会下载约 9 MB 的 FontDNA-V2 INT8 ONNX 模型到
 `.cache/fontdna/`。启用 TexTAR 时还会一次性下载约 66 MB 的公开权重到
 `.cache/textar/`；之后推理完全本地执行。也可提前下载并通过
@@ -96,6 +101,23 @@ uv run pytest -q
 `testdata/policy/results/<用例>/<clean|jpeg_q55|resize_085>/`。
 这些结果使用 DOM 真值字符框，不调用 API，不代表真实 OCR 的端到端准确率，
 也不评估表格结构还原。生成的详细输出已忽略，可通过命令重建。
+
+最新召回优先评测及对照页：
+
+```bash
+uv run --group textar python evaluate_bold_context.py
+uv run python evaluate_recall_profiles.py
+uv run python finalize_bold_recall.py
+```
+
+这组命令复用已有三个测试集的图片与真值。第一步生成固定模型预测缓存和
+直接融合的对照结果；最后一步使用实际启用的条件补齐规则生成
+`testdata/policy/recall_evaluation.json`、`recall_review.html` 和
+`recall_results/<用例>/<噪声版本>/styled.md`。中间步骤用于比较不同阈值，
+并不是自动拟合或训练。测试集参与了规则选择，指标不能当成独立盲测结果。
+
+`experiment_bold.py` / `bold_refinement.py` 是未接入主流程的同字模板匹配实验，
+结果在 `glyph_evaluation.json`，原图召回仅增加约 0.45 个百分点。
 
 ## 范围边界
 

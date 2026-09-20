@@ -141,3 +141,64 @@ def test_policy_fixture_has_true_negative_and_wrapped_table(tmp_path):
     assert not any(u['bold'] or u['underline'] or u['colored'] for u in plain['units'])
     table = next(c for c in manifest['cases'] if c['name'] == 'sdk_table_wrapped')
     assert sum(u['tag'] == 'td' for u in table['units']) > 100
+
+
+def test_word_context_respects_table_gaps_and_preserves_other_attributes():
+    from bold_context import WordContextEnsemble, word_groups
+
+    units = [Unit(c, [x, 0, x+10, 18], 0) for c,x in zip('隐私政策', (0,11,90,101))]
+    groups, owners = word_groups(units)
+    assert all(not (0 in indices and 2 in indices) for indices in owners)
+    assert sorted(i for indices in owners for i in indices) == [0,1,2,3]
+    _, mixed_owners = word_groups([Unit('SDK-v2',[0,0,60,18],0),Unit('授权',[61,0,83,18],0)])
+    assert sorted(i for indices in mixed_owners for i in indices)==[0,1]
+
+    class Backend:
+        def predict(self, image, items):
+            return [{'bold': .1 if len(u.text)==1 else .8, 'underline': .37} for u in items]
+
+    result = WordContextEnsemble(Backend()).predict(np.zeros((20,120,3),np.uint8), units)
+    assert all(p['bold']==.1 and p['underline']==.37 for p in result)
+    assert all(p.get('word_bold')==.8 for p in result)
+
+
+def test_word_context_requires_support_and_renders_accepted_words():
+    from bold_context import accept_word_bold
+
+    unsupported = Unit('字',[0,0,10,18],0,textar={'word_bold':.95,'character_bold':.01})
+    assert not accept_word_bold(unsupported)
+
+    class Backend:
+        def predict(self,image,units):
+            return [{'bold':.1,'word_bold':.7,'character_bold':.1,'word_context_enabled':1.} for _ in units]
+
+    units=[Unit(c,[i*12,0,i*12+11,18],0) for i,c in enumerate('授权书')]
+    classify_units(np.full((30,45,3),255,np.uint8),units,[[0,0,35,18]],None,Backend())
+    assert make_spans(units)[1]=='**授权书**'
+
+
+def test_bold_gap_closing_is_supported_bounded_and_nonrecursive():
+    from bold_context import bridge_bold_gaps
+
+    units=[Unit(c,[i*12,0,i*12+11,18],0,textar={'bold':.2}) for i,c in enumerate('甲乙丙丁戊己庚')]
+    for i in (0,3,6):
+        units[i].bold=True
+        units[i].bold_confidence=.7
+    assert bridge_bold_gaps(units)=={1,2,4,5}
+    units[3].line_index=1
+    assert bridge_bold_gaps(units)==set()
+    units[3].line_index=0
+    units[1].textar={'bold':.01}
+    assert bridge_bold_gaps(units)=={4,5}
+    units[4].box=[100,0,111,18]
+    assert bridge_bold_gaps(units)==set()
+
+
+def test_adjacent_bold_with_color_change_has_one_markdown_wrapper():
+    units=[Unit(c,[i*12,0,i*12+11,18],0,bold=True,bold_confidence=.8) for i,c in enumerate('蓝色正文')]
+    for u in units[:2]:
+        u.colored=True
+        u.color='#0080ff'
+    expected='**<span style="color:#0080ff">蓝色</span>正文**'
+    assert make_spans(units)[1]==expected
+    assert enrich_vl_markdown('蓝色正文',units)[0]==expected
